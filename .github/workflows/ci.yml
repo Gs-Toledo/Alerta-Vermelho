@@ -27,6 +27,7 @@ jobs:
         run: npm run core:test:coverage
 
       - name: Upload Coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-core
@@ -50,6 +51,7 @@ jobs:
         run: npm run react:test:coverage
 
       - name: Upload Coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-react
