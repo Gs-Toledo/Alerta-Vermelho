@@ -73,3 +73,34 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  deploy-coverage:
+    needs: [test-core, test-react]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download core coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-core
+          path: site/core
+
+      - name: Download react coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-react
+          path: site/react
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
