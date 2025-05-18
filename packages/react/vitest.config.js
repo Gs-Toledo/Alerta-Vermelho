@@ -3,8 +3,10 @@ export default {
         globals: true,
         environment: 'jsdom',
         coverage: {
-            all: true,
-            reporter: 'html',
+            include: [
+                './src/**/*',
+            ],
+            reporter: ['text', 'html'],
             thresholds: {
                 lines: 75,
                 functions: 75,
