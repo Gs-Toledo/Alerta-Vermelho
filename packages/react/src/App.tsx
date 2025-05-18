@@ -1,4 +1,4 @@
-import Game from '@alerta-vermelho/core/game';
+import { Game } from '@alerta-vermelho/core';
 
 const game = new Game();
 
