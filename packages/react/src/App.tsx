@@ -5,7 +5,7 @@ const game = new Game();
 function App() {
     return (
         <p>
-            Alerta vermelho! Round {game.getRound()}
+            Alerta vermelho!
         </p>
     )
 }

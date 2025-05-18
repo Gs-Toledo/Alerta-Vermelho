@@ -1,9 +1,9 @@
 import Game from './game';
 
 describe('Game', () => {
-    it('should return the current round', () => {
+    it('should instantiate the game', () => {
         const game = new Game();
-        
-        expect(game.getRound()).toBe(3);
+
+        expect(game).toBeInstanceOf(Game);
     });
 });
