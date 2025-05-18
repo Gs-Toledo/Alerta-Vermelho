@@ -27,10 +27,10 @@ jobs:
         run: npm run core:test:coverage
 
       - name: Upload Coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-core
-          path: coverage/
+          path: packages/core/coverage/
 
   test-react:
     runs-on: ubuntu-latest
@@ -50,10 +50,10 @@ jobs:
         run: npm run react:test:coverage
 
       - name: Upload Coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-react
-          path: coverage/
+          path: packages/react/coverage/
 
   build:
     runs-on: ubuntu-latest
