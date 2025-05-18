@@ -3,11 +3,14 @@ export default {
         globals: true,
         environment: 'jsdom',
         coverage: {
+            all: true,
             reporter: [],
-            lines: 75,
-            functions: 75,
-            branches: 75,
-            statements: 75,
+            thresholds: {
+                lines: 75,
+                functions: 75,
+                branches: 75,
+                statements: 75,
+            }
         },
     },
 };
