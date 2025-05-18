@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test Core
-        run: npm run test:core
+      - name: Test Core With Coverage
+        run: npm run core:test:coverage
 
   test-react:
     runs-on: ubuntu-latest
@@ -40,8 +40,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test React
-        run: npm run test:react
+      - name: Test React With Coverage
+        run: npm run react:test:coverage
 
   build:
     runs-on: ubuntu-latest
