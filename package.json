@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspace=@alerta-vermelho/react",
+    "build": "npm run build --workspace=@alerta-vermelho/react",
+    "start": "npm run preview --workspace=@alerta-vermelho/react"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
