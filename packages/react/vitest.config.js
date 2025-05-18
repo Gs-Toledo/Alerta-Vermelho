@@ -4,7 +4,7 @@ export default {
         environment: 'jsdom',
         coverage: {
             all: true,
-            reporter: [],
+            reporter: 'html',
             thresholds: {
                 lines: 75,
                 functions: 75,

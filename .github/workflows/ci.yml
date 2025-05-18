@@ -23,8 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test Core With Coverage
+      - name: Test With Coverage
         run: npm run core:test:coverage
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-core
+          path: coverage/
 
   test-react:
     runs-on: ubuntu-latest
@@ -40,8 +46,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test React With Coverage
+      - name: Test With Coverage
         run: npm run react:test:coverage
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-react
+          path: coverage/
 
   build:
     runs-on: ubuntu-latest
