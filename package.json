@@ -3,9 +3,16 @@
   "scripts": {
     "dev": "npm run dev --workspace=@alerta-vermelho/react",
     "build": "npm run build --workspace=@alerta-vermelho/react",
-    "start": "npm run preview --workspace=@alerta-vermelho/react"
+    "start": "npm run preview --workspace=@alerta-vermelho/react",
+    "react:test": "npm run test --workspace=@alerta-vermelho/react",
+    "core:test": "npm run test --workspace=@alerta-vermelho/core",
+    "react:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/react",
+    "core:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/core"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3"
+  }
 }

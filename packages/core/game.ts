@@ -1,5 +1,1 @@
-export default class Game {
-    getRound () {
-        return 3;
-    }
-}
+export default class Game {}
