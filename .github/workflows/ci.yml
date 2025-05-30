@@ -57,30 +57,30 @@ jobs:
           name: coverage-react
           path: packages/react/coverage/
 
-    test-react-e2e:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+  test-react-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v2
-          with:
-            node-version: '20'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
 
-        - name: Install dependencies
-          run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-        - name: Test E2E
-          run: npm run react:test:e2e
+      - name: Test E2E
+        run: npm run react:test:e2e
 
-        - name: Upload E2E Results
-          uses: actions/upload-artifact@v4
-          if: ${{ !cancelled() }}
-          with:
-            name: react-playwright-report
-            path: packages/react/playwright-report/
-            retention-days: 7
+      - name: Upload E2E Results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: react-playwright-report
+          path: packages/react/playwright-report/
+          retention-days: 7
   build:
     runs-on: ubuntu-latest
     steps:
