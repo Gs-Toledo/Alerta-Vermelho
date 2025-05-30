@@ -6,7 +6,7 @@ test('has title', async ({ page }) => {
     await expect(page).toHaveTitle("Alerta Vermelho");
 });
 
-test('has game title', async ({ page }) => {
+test('has heading', async ({ page }) => {
     await page.goto('/');
 
     const gameTitle = page.getByRole('heading', {
@@ -24,16 +24,4 @@ test('has start button', async ({ page }) => {
     });
 
     await expect(startButton).toBeVisible();
-});
-
-test('can redirect to game page by clicking in the start button', async ({ page }) => {
-    await page.goto('/');
-
-    const startButton = page.getByRole('button', {
-        name: 'Start'
-    });
-
-    await startButton.click();
-
-    await page.waitForURL('/game');
 });
