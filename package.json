@@ -7,7 +7,8 @@
     "react:test": "npm run test --workspace=@alerta-vermelho/react",
     "core:test": "npm run test --workspace=@alerta-vermelho/core",
     "react:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/react",
-    "core:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/core"
+    "core:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/core",
+    "react:test:e2e": "npm run test:e2e --workspace=@alerta-vermelho/react"
   },
   "workspaces": [
     "packages/*"
