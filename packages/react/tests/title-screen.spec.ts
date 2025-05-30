@@ -25,3 +25,13 @@ test('has start button', async ({ page }) => {
 
     await expect(startButton).toBeVisible();
 });
+
+test('has help button', async ({ page }) => {
+    await page.goto('/');
+
+    const helpButton = page.getByRole('button', {
+        name: 'Help'
+    });
+
+    await expect(helpButton).toBeVisible();
+});
