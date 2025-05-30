@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e:prepare": "playwright install --with-deps",
+    "test:e2e:run": "playwright test"
   },
   "dependencies": {
     "@alerta-vermelho/core": "*",
