@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "test:e2e:prepare": "playwright install",
+    "test:e2e:prepare": "npx playwright install --with-deps chromium",
     "test:e2e:run": "playwright test"
   },
   "dependencies": {
