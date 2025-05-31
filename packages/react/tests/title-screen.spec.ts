@@ -20,7 +20,7 @@ test('has start button', async ({ page }) => {
     await page.goto('/');
 
     const startButton = page.getByRole('button', {
-        name: 'Start'
+        name: 'Iniciar'
     });
 
     await expect(startButton).toBeVisible();
@@ -30,8 +30,24 @@ test('has help button', async ({ page }) => {
     await page.goto('/');
 
     const helpButton = page.getByRole('button', {
-        name: 'Help'
+        name: 'Ajuda'
     });
 
     await expect(helpButton).toBeVisible();
+});
+
+test('has exit button', async ({ page }) => {
+    await page.goto('/');
+
+    const startButton = page.getByRole('button', {
+        name: 'Iniciar'
+    });
+
+    await startButton.click();
+
+    const exitButton = page.getByRole('button', {
+        name: 'Sair'
+    });
+
+    await expect(exitButton).toBeVisible();
 });
