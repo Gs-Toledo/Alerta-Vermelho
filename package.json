@@ -7,12 +7,11 @@
     "react:test": "npm run test --workspace=@alerta-vermelho/react",
     "core:test": "npm run test --workspace=@alerta-vermelho/core",
     "react:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/react",
-    "core:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/core"
+    "core:test:coverage": "npm run test:coverage --workspace=@alerta-vermelho/core",
+    "react:test:e2e:prepare": "npm run test:e2e:prepare --workspace=@alerta-vermelho/react",
+    "react:test:e2e:run": "npm run test:e2e:run --workspace=@alerta-vermelho/react"
   },
   "workspaces": [
     "packages/*"
-  ],
-  "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3"
-  }
+  ]
 }
