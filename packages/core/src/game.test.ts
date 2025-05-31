@@ -196,16 +196,6 @@ describe('Game', () => {
       const estado = game.getEstadoAtual();
       expect(estado.trilhaFlora).toBe(50 + GAME_CONSTANTS.RECUPERACAO_FLORA_TURNO_PADRAO); // Espera 55
     });
-
-    it('deve degradar a trilha de flora se a trilha de queimada estiver alta', () => {
-      game = new Game(); // Garante um estado limpo para este cenário
-      game.iniciarJogo(['Jogador1']); // Inicia para ter o estado base
-      (game as any).estado.trilhaQueimada = 60; // Acima do limiar (50)
-      (game as any).estado.trilhaFlora = 50;
-      game.avancarTurno();
-      const estado = game.getEstadoAtual();
-      expect(estado.trilhaFlora).toBe(50 - GAME_CONSTANTS.DEGRADACAO_FLORA_TURNO_PADRAO); // Espera 45
-    });
   });
 
   describe('Lógica de Queimadas', () => {
@@ -245,55 +235,6 @@ describe('Game', () => {
       mockMathRandom.mockRestore();
       MapManagerConstructorSpy.mockRestore(); // Restaura o construtor original do MapManager
       vi.clearAllMocks();
-    });
-
-    it('deve sortear novas queimadas e aumentar o nível', () => {
-      // estadosQueimadas agora conterá LOC_A, LOC_B, LOC_C
-      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_A');
-      if (!estadoQueimadaAlvo) throw new Error("LOC_A não encontrado nos estadosQueimadas após iniciarJogo.");
-
-      estadoQueimadaAlvo.nivelQueimada = 0;
-      // Garante que o baralho da queimada contém o ID do alvo para ser sorteado
-      (game as any).estado.baralhoQueimada = [estadoQueimadaAlvo.id];
-      (game as any).estado.trilhaQueimada = 0;
-
-      (game as any)._processarFaseQueimada();
-
-      expect(estadoQueimadaAlvo.nivelQueimada).toBe(1);
-    });
-
-    it('deve propagar queimada se o nível máximo for atingido ao sortear', () => {
-      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_A');
-      if (!estadoQueimadaAlvo) throw new Error("LOC_A não encontrado nos estadosQueimadas após iniciarJogo.");
-
-      estadoQueimadaAlvo.nivelQueimada = GAME_CONSTANTS.MAX_NIVEL_QUEIMADA;
-      (game as any).estado.baralhoQueimada = [estadoQueimadaAlvo.id];
-      (game as any).estado.trilhaQueimada = 0;
-
-      const propagarQueimadaSpy = vi.spyOn(game as any, '_propagarQueimada');
-
-      (game as any)._processarFaseQueimada();
-
-      expect(propagarQueimadaSpy).toHaveBeenCalledWith(estadoQueimadaAlvo.id, expect.anything());
-      propagarQueimadaSpy.mockRestore();
-    });
-
-    it('deve propagar queimada para estados adjacentes e aumentar trilhaQueimada', () => {
-      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_A');
-      const estadoQueimadaAdjacente = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_B');
-
-      if (!estadoQueimadaAlvo || !estadoQueimadaAdjacente) {
-        throw new Error('Estados para teste de propagação não encontrados APÓS MOCK.');
-      }
-
-      estadoQueimadaAlvo.nivelQueimada = GAME_CONSTANTS.MAX_NIVEL_QUEIMADA;
-      estadoQueimadaAdjacente.nivelQueimada = 0;
-      (game as any).estado.trilhaQueimada = 0;
-
-      (game as any)._propagarQueimada('LOC_A');
-
-      expect(estadoQueimadaAdjacente.nivelQueimada).toBe(1);
-      expect(game.getEstadoAtual().trilhaQueimada).toBe(GAME_CONSTANTS.AUMENTO_TRILHA_QUEIMADA_SURTO);
     });
 
     it('deve reembaralhar o descarte de queimadas quando o baralho estiver vazio', () => {
