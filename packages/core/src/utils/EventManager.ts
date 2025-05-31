@@ -1,5 +1,5 @@
 import { CartaEvento, EstadoJogo, EstadoQueimada, Jogador, Localizacao, TipoEvento } from './types';
-import { GAME_CONSTANTS } from './constants';
+import { GAME_CONSTANTS } from '../constants/game-config';
 import { Logger } from './Logger';
 import { CardManager } from './CardManager';
 

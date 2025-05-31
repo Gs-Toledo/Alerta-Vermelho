@@ -9,12 +9,12 @@ import {
   CartaEvento,
   EstadoJogo,
   MensagemLog,
-} from './types';
-import { GAME_CONSTANTS } from './constants';
-import { Logger } from '../core/src/utils/Logger';
-import { MapManager } from '../core/src/utils/MapManager';
-import { CardManager } from '../core/src/utils/CardManager';
-import { EventManager } from '../core/src/utils/EventManager';
+} from './utils/types';
+import { GAME_CONSTANTS } from './constants/game-config';
+import { Logger } from './utils/Logger';
+import { MapManager } from './utils/MapManager';
+import { CardManager } from './utils/CardManager';
+import { EventManager } from './utils/EventManager';
 
 export default class Game {
   private estado: EstadoJogo;

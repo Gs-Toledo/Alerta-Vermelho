@@ -1,5 +1,5 @@
 import { Localizacao, RegiaoBrasil } from './types';
-import { INITIAL_BRAZIL_LOCATIONS } from './constants';
+import { INITIAL_BRAZIL_LOCATIONS } from '../constants/initial-brazil-locations';
 
 /**
  * Classe para gerenciar as localizações do mapa do jogo.
