@@ -45,19 +45,24 @@ npm run dev
 ## Regras
 
 O repositório possui algumas regras para permitir o melhor aproveitamento das contribuições dos desenvolvedores.
-- Não é permitido alterar diretamente os ramos permanentes, como `main` e `development`, seja por `git commit` ou `git merge`.
-- As melhorias e correções devem ser feitas em ramos temporários que duram horas ou poucos dias. Opcionalmente, os prefixo `feature` ou `fix` podem ser utilizado.
+- Consideraremos como *ramos permanentes*:
+    - `main`: Ramo principal do projeto, onde o código está sempre pronto para produção.
+    - `development`: Ramo de desenvolvimento, onde as novas funcionalidades e correções são integradas antes de serem enviadas para o ramo `main`.
+- Consideraremos como *ramos temporários* qualquer outro ramo criado para contribuição de novas funcionalidades ou correções de bugs.
+- Não é permitido alterar diretamente os *ramos permanentes*, seja por `git commit` ou `git merge`.
+- As melhorias e correções devem ser feitas em *ramos temporários* que duram horas ou poucos dias. Opcionalmente, os prefixo `feature` ou `fix` podem ser utilizado.
 - As contribuições devem possuir:
     - Testes unitários.
     - Oferecer uma cobertura de código de pelo menos 75%.
-- As contribuições devem ser integradas aos ramos permanentes através de **Pull Requests**. Para ser aceita, a solicitação deve:
+- As contribuições devem ser integradas aos *ramos permanentes* através de **Pull Requests**. Para ser aceita, a solicitação deve:
     - Ser aprovada por pelo menos 1 contribuidor.
     - Passar pelas verificações automáticas de teste e construção.
-- Os Pull Requests devem ser criados para o ramo `development`, e não para o `main`. E devem ser aprovados apenas quando o código estiver pronto. Consideraremos **pronto** quando:
+- Os Pull Requests de contribuições devem ser criados para `development`, e não para `main`. E devem ser aprovados apenas quando o código estiver pronto. Consideraremos **pronto** quando:
     - O código estiver funcionando corretamente.
     - Os testes unitários estiverem passando.
     - A cobertura de código estiver acima de 75%.
     - Poderá ser implantado em produção sem problemas.
+- Os Pull Requests para o ramo `main` devem ser feitos a partir do ramo `development`, e não diretamente do *ramo temporário*.
 - As contribuições devem ser documentadas. Isso inclui a criação de **Issues**, abertura de **Pull Requests** e adição de **Comentários** no código.
 - Respeitar as regras é fundamental. Elas existem para garantir a qualidade do código e a colaboração entre os desenvolvedores.
 
