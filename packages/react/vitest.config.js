@@ -1,5 +1,8 @@
 export default {
     test: {
+        include: [
+            './src/**/*.{test,spec}.{js,ts,jsx,tsx}',
+        ],
         globals: true,
         environment: 'jsdom',
         coverage: {
