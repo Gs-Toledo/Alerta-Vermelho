@@ -19,6 +19,32 @@ export default function GameStarted ({
                 <span>
                     Rodada 1
                 </span>
+
+                <span>
+                    Flora: 100%
+                </span>
+            </div>
+
+            <div>
+                <span>
+                    Norte
+                </span>
+
+                <span>
+                    Sul
+                </span>
+
+                <span>
+                    Nordeste
+                </span>
+
+                <span>
+                    Sudeste
+                </span>
+
+                <span>
+                    Centro-Oeste
+                </span>
             </div>
 
             <button role="button" onClick={onExitButtonClick}>
