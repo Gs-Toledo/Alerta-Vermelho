@@ -1,1 +1,48 @@
 @import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Epilogue:ital,wght@0,100..900;1,100..900&display=swap');
+
+@theme {
+    --font-epilogue: 'Epilogue', sans-serif;
+    --font-dm-sans: 'DM Sans', sans-serif;
+
+    --color-earthy-1: #F2E2DF;
+    --color-earthy-2: #C6B2A9;
+    --color-earthy-3: #A98E82;
+    --color-earthy-4: #9E7765;
+    --color-earthy-5: #37271F;
+    --color-earthy-6: #27211E;
+
+    --color-fiery-1: #F4CA78;
+    --color-fiery-2: #F5B073;
+    --color-fiery-3: #FF7966;
+}
+
+body {
+    @apply font-dm-sans;
+}
+
+@keyframes gradient-x {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.animate-game-title-gradiant {
+    background: linear-gradient(
+        270deg,
+        var(--color-fiery-1),
+        var(--color-fiery-2),
+        var(--color-fiery-3)
+    );
+    background-size: 400% 400%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: gradient-x 8s ease infinite;
+}
