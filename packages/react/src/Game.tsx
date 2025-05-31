@@ -1,17 +1,19 @@
 export default function Game () {
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <span role="heading" className="font-bold text-2xl">
+        <div className="flex flex-col items-center justify-center h-screen bg-earthy-1">
+            <span role="heading" className="font-epilogue font-bold text-6xl animate-game-title-gradiant">
                 Alerta Vermelho
             </span>
 
-            <button role="button" className="mt-4 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                Start
-            </button>
+            <div className="flex flex-row items-center justify-center gap-4 mt-4">
+                <button role="button" className="text-lg px-6 py-2 bg-fiery-3 text-white rounded-full transition-colors cursor-pointer">
+                    Iniciar
+                </button>
 
-            <button role="button" className="mt-2 px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
-                Help
-            </button>
+                <button role="button" className="text-lg px-6 py-2 bg-earthy-5 text-white rounded-full transition-colors cursor-pointer">
+                    Ajuda
+                </button>
+            </div>
         </div>
     );
 };
