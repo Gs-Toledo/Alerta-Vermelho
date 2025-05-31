@@ -3,7 +3,7 @@ export default {
         globals: true,
         coverage: {
             include: [
-                './src/**/*',
+                'src/**/*.{ts,js,tsx,jsx}'
             ],
             reporter: ['text', 'html'],
             thresholds: {
