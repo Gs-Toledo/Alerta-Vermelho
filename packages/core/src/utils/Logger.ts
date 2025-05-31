@@ -1,5 +1,5 @@
 import { MensagemLog } from './types';
-import { GAME_CONSTANTS } from './constants';
+import { GAME_CONSTANTS } from '../constants/game-config';
 
 /**
  * Classe utilitária para gerenciar o log de mensagens do jogo.

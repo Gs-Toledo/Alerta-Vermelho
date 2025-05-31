@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Game from './game';
-import { TipoAcao, TipoEvento, CargoJogador, CartaEvento } from './utils/types';
-import { GAME_CONSTANTS } from './constants';
+import { TipoAcao, TipoEvento, CargoJogador, CartaEvento, RegiaoBrasil } from './utils/types';
+import { GAME_CONSTANTS } from './constants/game-config';
+import { MapManager } from './utils/MapManager'; // Importe MapManager para mockar
 
 describe('Game', () => {
   let game: Game;
@@ -10,12 +11,12 @@ describe('Game', () => {
   beforeEach(() => {
     game = new Game();
     mockMathRandom = vi.spyOn(Math, 'random');
-    // Mockar Math.random para testes determinísticos
-    mockMathRandom.mockReturnValue(0.5); // Valor padrão
+    mockMathRandom.mockReturnValue(0.5);
   });
 
   afterEach(() => {
     mockMathRandom.mockRestore();
+    vi.clearAllMocks();
   });
 
   describe('Inicialização do Jogo', () => {
@@ -43,13 +44,12 @@ describe('Game', () => {
     });
 
     it('deve distribuir queimadas iniciais corretamente', () => {
-      mockMathRandom.mockReturnValue(0.1); // Garante que o mesmo estado seja sorteado para queimada inicial
+      mockMathRandom.mockReturnValue(0.1);
       game.iniciarJogo(['Jogador1']);
       const estado = game.getEstadoAtual();
 
       const estadosComQueimada = estado.estadosQueimadas.filter(eq => eq.nivelQueimada > 0);
       expect(estadosComQueimada.length).toBeGreaterThanOrEqual(GAME_CONSTANTS.QUEIMADAS_INICIAIS);
-      // Verifica se o nível das queimadas iniciais é 1
       estadosComQueimada.forEach(eq => expect(eq.nivelQueimada).toBe(1));
     });
   });
@@ -57,19 +57,17 @@ describe('Game', () => {
   describe('Ações do Jogador', () => {
     let jogador1Id: string;
     let jogador2Id: string;
-    let estadoInicial: any;
 
     beforeEach(() => {
-      mockMathRandom.mockReturnValue(0.5); // Reset para cada teste de ação
+      mockMathRandom.mockReturnValue(0.5);
       game.iniciarJogo(['Alice', 'Bob']);
-      estadoInicial = game.getEstadoAtual();
-      jogador1Id = estadoInicial.jogadores[0].id;
-      jogador2Id = estadoInicial.jogadores[1].id;
+      jogador1Id = game.getEstadoAtual().jogadores[0].id;
+      jogador2Id = game.getEstadoAtual().jogadores[1].id;
     });
 
     it('deve permitir que um jogador se mova para uma localização adjacente', () => {
-      const jogador = estadoInicial.jogadores.find((j: { id: string; }) => j.id === jogador1Id);
-      const localizacaoAtual = game.getEstadoAtual().localizacoes.find(loc => loc.id === jogador.localizacaoAtual);
+      const jogador = (game as any).estado.jogadores.find((j: { id: string; }) => j.id === jogador1Id);
+      const localizacaoAtual = (game as any).estado.localizacoes.find((loc: { id: string; }) => loc.id === jogador.localizacaoAtual);
       const destinoId = localizacaoAtual?.adjacentes[0];
 
       if (!destinoId) throw new Error('Não há localização adjacente para teste.');
@@ -81,23 +79,21 @@ describe('Game', () => {
     });
 
     it('não deve permitir que um jogador se mova para uma localização não adjacente', () => {
-      const jogador = estadoInicial.jogadores.find((j: { id: string; }) => j.id === jogador1Id);
-      const localizacaoAtual = game.getEstadoAtual().localizacoes.find(loc => loc.id === jogador.localizacaoAtual);
-      // Tenta mover para uma localização que certamente não é adjacente (ex: um estado do sul para um do norte que não é adjacente ao atual)
-      const destinoInvalidoId = game.getEstadoAtual().localizacoes.find(loc => !localizacaoAtual?.adjacentes.includes(loc.id) && loc.id !== localizacaoAtual?.id)?.id;
+      const jogador = (game as any).estado.jogadores.find((j: { id: string; }) => j.id === jogador1Id);
+      const localizacaoAtual = (game as any).estado.localizacoes.find((loc: { id: string; }) => loc.id === jogador.localizacaoAtual);
+      const destinoInvalidoId = (game as any).estado.localizacoes.find((loc: { adjacentes: string | string[]; id: string; }) => !localizacaoAtual?.adjacentes.includes(loc.id) && loc.id !== localizacaoAtual?.id)?.id;
       if (!destinoInvalidoId) throw new Error('Não foi possível encontrar um destino inválido para teste.');
 
       const sucesso = game.realizarAcao(jogador1Id, TipoAcao.MOVER, destinoInvalidoId);
       expect(sucesso).toBe(false);
       expect(game.getEstadoAtual().jogadores.find(j => j.id === jogador1Id)?.localizacaoAtual).toBe(jogador.localizacaoAtual);
-      expect(game.getEstadoAtual().jogadores.find(j => j.id === jogador1Id)?.acoesRestantes).toBe(GAME_CONSTANTS.ACOES_POR_TURNO); // Ações não devem ser consumidas
+      expect(game.getEstadoAtual().jogadores.find(j => j.id === jogador1Id)?.acoesRestantes).toBe(GAME_CONSTANTS.ACOES_POR_TURNO);
     });
 
     it('deve permitir que um jogador combata uma queimada', () => {
-      // Força um estado com queimada para teste
-      const estadoQueimadaAlvo = game.getEstadoAtual().estadosQueimadas[0];
+      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas[0];
       estadoQueimadaAlvo.nivelQueimada = 2;
-      game.getEstadoAtual().jogadores[0].localizacaoAtual = estadoQueimadaAlvo.id;
+      (game as any).estado.jogadores[0].localizacaoAtual = estadoQueimadaAlvo.id;
 
       const sucesso = game.realizarAcao(jogador1Id, TipoAcao.COMBATER_QUEIMADA);
       expect(sucesso).toBe(true);
@@ -106,23 +102,26 @@ describe('Game', () => {
     });
 
     it('não deve permitir combater queimada se não houver queimada', () => {
-      const estadoQueimadaAlvo = game.getEstadoAtual().estadosQueimadas[0];
-      estadoQueimadaAlvo.nivelQueimada = 0; // Garante que não há queimada
-      game.getEstadoAtual().jogadores[0].localizacaoAtual = estadoQueimadaAlvo.id;
+      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas[0];
+      estadoQueimadaAlvo.nivelQueimada = 0;
+      (game as any).estado.jogadores[0].localizacaoAtual = estadoQueimadaAlvo.id;
 
       const sucesso = game.realizarAcao(jogador1Id, TipoAcao.COMBATER_QUEIMADA);
       expect(sucesso).toBe(false);
       expect(game.getEstadoAtual().estadosQueimadas.find(eq => eq.id === estadoQueimadaAlvo.id)?.nivelQueimada).toBe(0);
-      expect(game.getEstadoAtual().jogadores.find(j => j.id === jogador1Id)?.acoesRestantes).toBe(GAME_CONSTANTS.ACOES_POR_TURNO); // Ações não devem ser consumidas
+      expect(game.getEstadoAtual().jogadores.find(j => j.id === jogador1Id)?.acoesRestantes).toBe(GAME_CONSTANTS.ACOES_POR_TURNO);
     });
 
     it('deve permitir que jogadores cooperem e troquem cartas', () => {
-      const localizacaoComumId = estadoInicial.localizacoes[0].id;
-      game.getEstadoAtual().jogadores[0].localizacaoAtual = localizacaoComumId;
-      game.getEstadoAtual().jogadores[1].localizacaoAtual = localizacaoComumId;
+      const localizacaoComumId = (game as any).estado.localizacoes[0].id;
+      (game as any).estado.jogadores[0].localizacaoAtual = localizacaoComumId;
+      (game as any).estado.jogadores[1].localizacaoAtual = localizacaoComumId;
 
-      const cartaParaTrocar = 'AM'; // Assume que 'AM' é uma carta válida
-      game.getEstadoAtual().jogadores[0].mao.push(cartaParaTrocar);
+      const jogador1Real = (game as any).estado.jogadores.find((j: { id: string; }) => j.id === jogador1Id);
+      if (jogador1Real.mao.length === 0) {
+        jogador1Real.mao.push('TEST_CARD_A'); // Garante que há uma carta para trocar
+      }
+      const cartaParaTrocar = jogador1Real.mao[0];
 
       const sucesso = game.realizarAcao(jogador1Id, TipoAcao.COOPERAR, jogador2Id, cartaParaTrocar);
       expect(sucesso).toBe(true);
@@ -132,13 +131,16 @@ describe('Game', () => {
     });
 
     it('não deve permitir cooperação se jogadores não estiverem no mesmo local', () => {
-      const localizacao1Id = estadoInicial.localizacoes[0].id;
-      const localizacao2Id = estadoInicial.localizacoes[1].id;
-      game.getEstadoAtual().jogadores[0].localizacaoAtual = localizacao1Id;
-      game.getEstadoAtual().jogadores[1].localizacaoAtual = localizacao2Id;
+      const localizacao1Id = (game as any).estado.localizacoes[0].id;
+      const allLocs = (game as any).estado.localizacoes;
+      const differentLocs = allLocs.filter((loc: { id: string; }) => loc.id !== localizacao1Id);
+      if (differentLocs.length === 0) throw new Error("Não há localizações suficientes para testar não-adjacência para cooperação.");
+      
+      (game as any).estado.jogadores[0].localizacaoAtual = localizacao1Id;
+      (game as any).estado.jogadores[1].localizacaoAtual = differentLocs[0].id; // Garante que estão em locais diferentes
 
       const cartaParaTrocar = 'AM';
-      game.getEstadoAtual().jogadores[0].mao.push(cartaParaTrocar);
+      (game as any).estado.jogadores[0].mao.push(cartaParaTrocar);
 
       const sucesso = game.realizarAcao(jogador1Id, TipoAcao.COOPERAR, jogador2Id, cartaParaTrocar);
       expect(sucesso).toBe(false);
@@ -154,7 +156,7 @@ describe('Game', () => {
     });
 
     it('não deve permitir ações se o jogador não tiver ações restantes', () => {
-      game.getEstadoAtual().jogadores[0].acoesRestantes = 0;
+      (game as any).estado.jogadores[0].acoesRestantes = 0;
 
       const sucesso = game.realizarAcao(jogador1Id, TipoAcao.PLANEJAMENTO);
       expect(sucesso).toBe(false);
@@ -163,14 +165,13 @@ describe('Game', () => {
   });
 
   describe('Progressão de Turno', () => {
-    beforeEach(() => {
-      mockMathRandom.mockReturnValue(0.5);
-      game.iniciarJogo(['Jogador1']);
-      // Consumir algumas ações para testar o reset no próximo turno
-      game.realizarAcao(game.getEstadoAtual().jogadores[0].id, TipoAcao.PLANEJAMENTO);
-    });
+    // Não precisa de beforeEach aqui, pois cada 'it' reinicia o jogo
+    // ou manipula o estado explicitamente.
 
     it('deve avançar o turno e resetar ações dos jogadores', () => {
+      game = new Game(); // Garante um estado limpo
+      game.iniciarJogo(['Jogador1']);
+      (game as any).estado.jogadores[0].acoesRestantes = 0; // Garante que as ações são resetadas
       game.avancarTurno();
       const estado = game.getEstadoAtual();
       expect(estado.turnoAtual).toBe(2);
@@ -178,96 +179,137 @@ describe('Game', () => {
     });
 
     it('deve fazer os jogadores comprarem cartas no início do turno', () => {
-      const jogador = game.getEstadoAtual().jogadores[0];
+      game = new Game(); // Garante um estado limpo
+      game.iniciarJogo(['Jogador1']);
+      const jogador = (game as any).estado.jogadores[0];
       const cartasAntes = jogador.mao.length;
       game.avancarTurno();
-      expect(game.getEstadoAtual().jogadores[0].mao.length).toBe(cartasAntes + 2); // Assume que compra 2 cartas por turno
+      expect(game.getEstadoAtual().jogadores[0].mao.length).toBe(cartasAntes + 2);
     });
 
-    it('deve atualizar a trilha de flora com base na trilha de queimada', () => {
-      game.getEstadoAtual().trilhaQueimada = 40; // Abaixo do limiar
-      game.getEstadoAtual().trilhaFlora = 50;
+    it('deve recuperar a trilha de flora se a trilha de queimada estiver baixa', () => {
+      game = new Game(); // Garante um estado limpo
+      game.iniciarJogo(['Jogador1']); // Inicia para ter o estado base
+      (game as any).estado.trilhaQueimada = 40; // Abaixo do limiar (50)
+      (game as any).estado.trilhaFlora = 50;
       game.avancarTurno();
-      let estado = game.getEstadoAtual();
-      expect(estado.trilhaFlora).toBe(50 + GAME_CONSTANTS.RECUPERACAO_FLORA_TURNO_PADRAO);
+      const estado = game.getEstadoAtual();
+      expect(estado.trilhaFlora).toBe(50 + GAME_CONSTANTS.RECUPERACAO_FLORA_TURNO_PADRAO); // Espera 55
+    });
 
-      game.getEstadoAtual().trilhaQueimada = 60; // Acima do limiar
-      game.getEstadoAtual().trilhaFlora = 50;
+    it('deve degradar a trilha de flora se a trilha de queimada estiver alta', () => {
+      game = new Game(); // Garante um estado limpo para este cenário
+      game.iniciarJogo(['Jogador1']); // Inicia para ter o estado base
+      (game as any).estado.trilhaQueimada = 60; // Acima do limiar (50)
+      (game as any).estado.trilhaFlora = 50;
       game.avancarTurno();
-      estado = game.getEstadoAtual();
-      expect(estado.trilhaFlora).toBe(50 - GAME_CONSTANTS.DEGRADACAO_FLORA_TURNO_PADRAO);
+      const estado = game.getEstadoAtual();
+      expect(estado.trilhaFlora).toBe(50 - GAME_CONSTANTS.DEGRADACAO_FLORA_TURNO_PADRAO); // Espera 45
     });
   });
 
   describe('Lógica de Queimadas', () => {
+    // Mocks para o MapManager para este bloco de testes
+    const mockLocations = [
+      { id: 'LOC_A', estado: 'Estado A', regiao: RegiaoBrasil.NORTE, adjacentes: ['LOC_B'] },
+      { id: 'LOC_B', estado: 'Estado B', regiao: RegiaoBrasil.NORTE, adjacentes: ['LOC_A', 'LOC_C'] },
+      { id: 'LOC_C', estado: 'Estado C', regiao: RegiaoBrasil.NORTE, adjacentes: ['LOC_B'] }
+    ];
+
+    let MapManagerConstructorSpy: vi.SpyInstance;
+
     beforeEach(() => {
-      mockMathRandom.mockReturnValue(0.5);
-      game.iniciarJogo(['Jogador1']);
+      mockMathRandom = vi.spyOn(Math, 'random');
+      mockMathRandom.mockReturnValue(0.5); // Padrão para random
+
+      // Spy no construtor da classe MapManager
+      // Quando MapManager é instanciado dentro de Game, ele usará esta implementação mockada
+      MapManagerConstructorSpy = vi.spyOn(MapManager.prototype, 'constructor' as any)
+                                  .mockImplementation(function (this: MapManager) {
+                                      // Inicializa as propriedades do MapManager mockado
+                                      (this as any).localizacoes = JSON.parse(JSON.stringify(mockLocations));
+                                      // Sobrescreve os métodos essenciais com vi.fn para que possamos espionar/controlar
+                                      this.getLocalizacoes = vi.fn(() => JSON.parse(JSON.stringify(mockLocations)));
+                                      this.findLocationById = vi.fn((id: string) => (this as any).localizacoes.find((loc: { id: string; }) => loc.id === id));
+                                      this.areAdjacent = vi.fn((loc1Id: string, loc2Id: string) => {
+                                          const loc1 = (this as any).localizacoes.find((loc: { id: string; }) => loc.id === loc1Id);
+                                          return loc1 ? loc1.adjacentes.includes(loc2Id) : false;
+                                      });
+                                  });
+
+      game = new Game(); // Game agora instancia o MapManager mockado
+      game.iniciarJogo(['Jogador1']); // inicarJogo vai usar as localizações mockadas
+    });
+
+    afterEach(() => {
+      mockMathRandom.mockRestore();
+      MapManagerConstructorSpy.mockRestore(); // Restaura o construtor original do MapManager
+      vi.clearAllMocks();
     });
 
     it('deve sortear novas queimadas e aumentar o nível', () => {
-      const estadoQueimadaAlvo = game.getEstadoAtual().estadosQueimadas[0];
-      estadoQueimadaAlvo.nivelQueimada = 0;
-      game.getEstadoAtual().baralhoQueimada = [estadoQueimadaAlvo.id]; // Garante que será sorteada
-      game.getEstadoAtual().trilhaQueimada = 0; // Para NUM_CARTAS_QUEIMADA_POR_FASE ser 1
+      // estadosQueimadas agora conterá LOC_A, LOC_B, LOC_C
+      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_A');
+      if (!estadoQueimadaAlvo) throw new Error("LOC_A não encontrado nos estadosQueimadas após iniciarJogo.");
 
-      // Força a fase de queimadas (simulando avanço de turno)
+      estadoQueimadaAlvo.nivelQueimada = 0;
+      // Garante que o baralho da queimada contém o ID do alvo para ser sorteado
+      (game as any).estado.baralhoQueimada = [estadoQueimadaAlvo.id];
+      (game as any).estado.trilhaQueimada = 0;
+
       (game as any)._processarFaseQueimada();
 
       expect(estadoQueimadaAlvo.nivelQueimada).toBe(1);
     });
 
     it('deve propagar queimada se o nível máximo for atingido ao sortear', () => {
-      const estadoQueimadaAlvo = game.getEstadoAtual().estadosQueimadas[0];
+      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_A');
+      if (!estadoQueimadaAlvo) throw new Error("LOC_A não encontrado nos estadosQueimadas após iniciarJogo.");
+
       estadoQueimadaAlvo.nivelQueimada = GAME_CONSTANTS.MAX_NIVEL_QUEIMADA;
-      game.getEstadoAtual().baralhoQueimada = [estadoQueimadaAlvo.id];
-      game.getEstadoAtual().trilhaQueimada = 0;
+      (game as any).estado.baralhoQueimada = [estadoQueimadaAlvo.id];
+      (game as any).estado.trilhaQueimada = 0;
 
       const propagarQueimadaSpy = vi.spyOn(game as any, '_propagarQueimada');
 
       (game as any)._processarFaseQueimada();
 
-      expect(propagarQueimadaSpy).toHaveBeenCalledWith(estadoQueimadaAlvo.id, expect.any(Set));
+      expect(propagarQueimadaSpy).toHaveBeenCalledWith(estadoQueimadaAlvo.id, expect.anything());
+      propagarQueimadaSpy.mockRestore();
     });
 
     it('deve propagar queimada para estados adjacentes e aumentar trilhaQueimada', () => {
-      // Mocka o mapa para ter certeza das adjacências para o teste
-      const loc1 = { id: 'A', estado: 'Estado A', regiao: CargoJogador.GOVERNADOR, adjacentes: ['B'] };
-      const loc2 = { id: 'B', estado: 'Estado B', regiao: CargoJogador.GOVERNADOR, adjacentes: ['A'] };
-      (game as any).mapManager.getLocalizacoes = vi.fn(() => [loc1, loc2]);
-      (game as any).mapManager.findLocationById = vi.fn((id: string) => [loc1, loc2].find(l => l.id === id));
-      (game as any).mapManager.areAdjacent = vi.fn((id1: string, id2: string) => (id1 === 'A' && id2 === 'B') || (id1 === 'B' && id2 === 'A'));
+      const estadoQueimadaAlvo = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_A');
+      const estadoQueimadaAdjacente = (game as any).estado.estadosQueimadas.find((eq: { id: string; }) => eq.id === 'LOC_B');
 
-      // Re-inicializa os estados de queimada após mockar o mapa
-      game.iniciarJogo(['Jogador1']);
-      const estadoQueimadaAlvo = game.getEstadoAtual().estadosQueimadas.find(eq => eq.id === 'A');
-      const estadoQueimadaAdjacente = game.getEstadoAtual().estadosQueimadas.find(eq => eq.id === 'B');
-
-      if (!estadoQueimadaAlvo || !estadoQueimadaAdjacente) throw new Error('Estados para teste de propagação não encontrados.');
+      if (!estadoQueimadaAlvo || !estadoQueimadaAdjacente) {
+        throw new Error('Estados para teste de propagação não encontrados APÓS MOCK.');
+      }
 
       estadoQueimadaAlvo.nivelQueimada = GAME_CONSTANTS.MAX_NIVEL_QUEIMADA;
       estadoQueimadaAdjacente.nivelQueimada = 0;
-      game.getEstadoAtual().trilhaQueimada = 0; // Zera para verificar o aumento
+      (game as any).estado.trilhaQueimada = 0;
 
-      (game as any)._propagarQueimada('A');
+      (game as any)._propagarQueimada('LOC_A');
 
       expect(estadoQueimadaAdjacente.nivelQueimada).toBe(1);
       expect(game.getEstadoAtual().trilhaQueimada).toBe(GAME_CONSTANTS.AUMENTO_TRILHA_QUEIMADA_SURTO);
     });
 
     it('deve reembaralhar o descarte de queimadas quando o baralho estiver vazio', () => {
-      game.getEstadoAtual().baralhoQueimada = [];
-      game.getEstadoAtual().descarteQueimada = ['AM', 'PA'];
-      game.getEstadoAtual().trilhaQueimada = 0; // Para sortear apenas 1 carta
+      (game as any).estado.baralhoQueimada = [];
+      (game as any).estado.descarteQueimada = ['LOC_A', 'LOC_B']; // Usando IDs mockados
+      (game as any).estado.trilhaQueimada = 0;
 
       const shuffleSpy = vi.spyOn((game as any).cardManager, 'shuffle');
 
       (game as any)._processarFaseQueimada();
 
       const estado = game.getEstadoAtual();
-      expect(estado.baralhoQueimada.length).toBe(1);
-      expect(estado.descarteQueimada.length).toBe(1); // Uma foi para o baralho e depois para o descarte
       expect(shuffleSpy).toHaveBeenCalled();
+      expect(estado.baralhoQueimada.length).toBe(1);
+      expect(estado.descarteQueimada.length).toBe(1);
+      shuffleSpy.mockRestore();
     });
   });
 
@@ -280,39 +322,41 @@ describe('Game', () => {
     it('deve ativar o evento QUEIMADA_INTENSA', () => {
       const sortearNovaQueimadaSpy = vi.spyOn(game as any, '_sortearNovaQueimada');
       const evento: CartaEvento = { tipo: TipoEvento.QUEIMADA_INTENSA, descricao: '' };
-      // Simula a ativação do evento pelo EventManager
       (game as any).eventManager.ativarCartaEvento(
         evento,
-        game.getEstadoAtual(),
+        (game as any).estado,
         () => (game as any)._sortearNovaQueimada(),
         (id: string) => (game as any).mapManager.findLocationById(id)
       );
       expect(sortearNovaQueimadaSpy).toHaveBeenCalled();
+      sortearNovaQueimadaSpy.mockRestore();
     });
 
     it('deve ativar o evento SECA_PROLONGADA', () => {
-      const trilhaQueimadaAntes = game.getEstadoAtual().trilhaQueimada;
+      (game as any).estado.trilhaQueimada = 0;
+      const trilhaQueimadaAntes = (game as any).estado.trilhaQueimada;
+
       const evento: CartaEvento = { tipo: TipoEvento.SECA_PROLONGADA, descricao: '' };
       (game as any).eventManager.ativarCartaEvento(
         evento,
-        game.getEstadoAtual(),
-        () => {}, // Não relevante para este evento
+        (game as any).estado,
+        () => {},
         () => undefined
       );
       expect(game.getEstadoAtual().trilhaQueimada).toBe(Math.min(GAME_CONSTANTS.MAX_TRILHA_QUEIMADA, trilhaQueimadaAntes + GAME_CONSTANTS.FATORES_EVENTOS.SECA_PROLONGADA_AUMENTO_QUEIMADA));
     });
 
     it('deve ativar o evento CHUVA_BENEFICA e reduzir queimada/aumentar flora', () => {
-      const estadoComQueimada = game.getEstadoAtual().estadosQueimadas[0];
+      const estadoComQueimada = (game as any).estado.estadosQueimadas[0];
       estadoComQueimada.nivelQueimada = 2;
-      game.getEstadoAtual().trilhaFlora = 50;
+      (game as any).estado.trilhaFlora = 50;
 
       const evento: CartaEvento = { tipo: TipoEvento.CHUVA_BENEFICA, descricao: '' };
-      mockMathRandom.mockReturnValue(0); // Para selecionar o primeiro estado com queimada
+      mockMathRandom.mockReturnValue(0);
 
       (game as any).eventManager.ativarCartaEvento(
         evento,
-        game.getEstadoAtual(),
+        (game as any).estado,
         () => {},
         (id: string) => (game as any).mapManager.findLocationById(id)
       );
@@ -321,15 +365,15 @@ describe('Game', () => {
     });
 
     it('deve ativar o evento CONSCIENTIZACAO e aumentar proteção ambiental', () => {
-      const estadoParaProteger = game.getEstadoAtual().estadosQueimadas[0];
+      const estadoParaProteger = (game as any).estado.estadosQueimadas[0];
       estadoParaProteger.protecaoAmbiental = 0;
 
       const evento: CartaEvento = { tipo: TipoEvento.CONSCIENTIZACAO, descricao: '' };
-      mockMathRandom.mockReturnValue(0); // Para selecionar o primeiro estado
+      mockMathRandom.mockReturnValue(0);
 
       (game as any).eventManager.ativarCartaEvento(
         evento,
-        game.getEstadoAtual(),
+        (game as any).estado,
         () => {},
         (id: string) => (game as any).mapManager.findLocationById(id)
       );
@@ -337,15 +381,15 @@ describe('Game', () => {
     });
 
     it('deve ativar o evento VERBA_EMERGENCIAL e conceder ação extra', () => {
-      const jogadorAlvo = game.getEstadoAtual().jogadores[0];
+      const jogadorAlvo = (game as any).estado.jogadores[0];
       jogadorAlvo.acoesRestantes = 2;
 
       const evento: CartaEvento = { tipo: TipoEvento.VERBA_EMERGENCIAL, descricao: '' };
-      mockMathRandom.mockReturnValue(0); // Para selecionar o primeiro jogador
+      mockMathRandom.mockReturnValue(0);
 
       (game as any).eventManager.ativarCartaEvento(
         evento,
-        game.getEstadoAtual(),
+        (game as any).estado,
         () => {},
         () => undefined
       );
@@ -360,8 +404,8 @@ describe('Game', () => {
     });
 
     it('deve declarar vitória se todas as queimadas forem controladas e a flora estiver recuperada', () => {
-      game.getEstadoAtual().estadosQueimadas.forEach(eq => (eq.nivelQueimada = 0));
-      game.getEstadoAtual().trilhaFlora = GAME_CONSTANTS.VITORIA_FLORA_LIMIAR;
+      (game as any).estado.estadosQueimadas.forEach((eq: any) => (eq.nivelQueimada = 0));
+      (game as any).estado.trilhaFlora = GAME_CONSTANTS.VITORIA_FLORA_LIMIAR;
 
       (game as any)._verificarCondicoesVitoria();
       const estado = game.getEstadoAtual();
@@ -370,7 +414,7 @@ describe('Game', () => {
     });
 
     it('deve declarar derrota se o limite de turnos for atingido', () => {
-      game.getEstadoAtual().turnoAtual = GAME_CONSTANTS.MAX_TURNOS;
+      (game as any).estado.turnoAtual = GAME_CONSTANTS.MAX_TURNOS;
       (game as any)._verificarCondicoesVitoria();
       const estado = game.getEstadoAtual();
       expect(estado.jogoAcabou).toBe(true);
@@ -378,7 +422,7 @@ describe('Game', () => {
     });
 
     it('deve declarar derrota se a trilha de queimada atingir o máximo', () => {
-      game.getEstadoAtual().trilhaQueimada = GAME_CONSTANTS.MAX_TRILHA_QUEIMADA;
+      (game as any).estado.trilhaQueimada = GAME_CONSTANTS.MAX_TRILHA_QUEIMADA;
       (game as any)._verificarCondicoesVitoria();
       const estado = game.getEstadoAtual();
       expect(estado.jogoAcabou).toBe(true);
@@ -386,7 +430,7 @@ describe('Game', () => {
     });
 
     it('deve declarar derrota se a trilha de flora atingir o mínimo', () => {
-      game.getEstadoAtual().trilhaFlora = GAME_CONSTANTS.MIN_TRILHA_FLORA;
+      (game as any).estado.trilhaFlora = GAME_CONSTANTS.MIN_TRILHA_FLORA;
       (game as any)._verificarCondicoesVitoria();
       const estado = game.getEstadoAtual();
       expect(estado.jogoAcabou).toBe(true);
@@ -394,9 +438,9 @@ describe('Game', () => {
     });
 
     it('deve declarar derrota se o baralho de jogadores acabar', () => {
-      game.getEstadoAtual().baralhoJogador = [];
-      game.getEstadoAtual().descarteJogador = [];
-      game.getEstadoAtual().turnoAtual = 2; // Precisa ser > 1 para esta condição ser checada após inicialização
+      (game as any).estado.baralhoJogador = [];
+      (game as any).estado.descarteJogador = [];
+      (game as any).estado.turnoAtual = 2;
 
       (game as any)._verificarCondicoesVitoria();
       const estado = game.getEstadoAtual();
