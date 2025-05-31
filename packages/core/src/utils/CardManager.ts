@@ -1,5 +1,5 @@
 import { CartaEvento } from './types';
-import { INITIAL_EVENT_CARDS } from './constants';
+import { INITIAL_EVENT_CARDS } from '../constants/initial-event-cards';
 
 /**
  * Classe para gerenciar os baralhos do jogo (jogador, evento, queimada).
