@@ -53,8 +53,13 @@ O repositório possui algumas regras para permitir o melhor aproveitamento das c
 - As contribuições devem ser integradas aos ramos permanentes através de **Pull Requests**. Para ser aceita, a solicitação deve:
     - Ser aprovada por pelo menos 1 contribuidor.
     - Passar pelas verificações automáticas de teste e construção.
-- Documente o que você está contribuindo. Crie **Issues**, abra **Pull Requests** e adicione **Comentários** no código.
-- Por último, mas não menos importante, respeite as regras. Elas existem por uma razão.
+- Os Pull Requests devem ser criados para o ramo `development`, e não para o `main`. E devem ser aprovados apenas quando o código estiver pronto. Consideraremos **pronto** quando:
+    - O código estiver funcionando corretamente.
+    - Os testes unitários estiverem passando.
+    - A cobertura de código estiver acima de 75%.
+    - Poderá ser implantado em produção sem problemas.
+- As contribuições devem ser documentadas. Isso inclui a criação de **Issues**, abertura de **Pull Requests** e adição de **Comentários** no código.
+- Respeitar as regras é fundamental. Elas existem para garantir a qualidade do código e a colaboração entre os desenvolvedores.
 
 ### Testes unitários
 
