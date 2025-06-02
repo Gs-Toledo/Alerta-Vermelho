@@ -44,20 +44,22 @@ test('game is started with full flora', async ({ page }) => {
     await expectFloraIsFull(page);
 });
 
-test('game must have region names', async ({ page }) => {
-    const regionNames = [
-        'Norte',
-        'Sul',
-        'Nordeste',
-        'Sudeste',
-        'Centro-Oeste',
+test('game must short state names', async ({ page }) => {
+    const brazilianShortStateNames = [
+        'AC', 'AM', 'RR', 'RO', 'PA', 'AP', 'TO',
+        'MA', 'PI', 'CE', 'RN', 'PB', 'PE', 'AL', 'SE', 'BA',
+        'MT', 'MS', 'GO', 'DF',
+        'SP', 'RJ', 'ES', 'MG',
+        'RS', 'SC', 'PR',
     ];
 
     await startGame(page);
 
-    for (const regionName of regionNames) {
-        const region = page.getByText(regionName);
+    for (const shortStateName of brazilianShortStateNames) {
+        const stateName = page.getByText(shortStateName, {
+            exact: true
+        });
 
-        await expect(region).toBeVisible();
+        await expect(stateName).toBeVisible();
     }
 });
