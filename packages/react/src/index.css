@@ -43,5 +43,5 @@ body {
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    animation: gradient-x 8s ease infinite;
+    animation: gradient-x 6s ease infinite;
 }
