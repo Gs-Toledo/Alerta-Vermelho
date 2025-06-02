@@ -1,3 +1,5 @@
+import Brazil from "./brazil";
+
 type GameStartedProps = {
     onExitButtonClick: () => void;
 };
@@ -7,7 +9,7 @@ export default function GameStarted ({
 }: GameStartedProps) {
     return (
         <div>
-            <div>
+            <div className="flex flex-col items-center justify-between">
                 <span>
                     Alerta Vermelho
                 </span>
@@ -25,26 +27,10 @@ export default function GameStarted ({
                 </span>
             </div>
 
-            <div>
-                <span>
-                    Norte
-                </span>
-
-                <span>
-                    Sul
-                </span>
-
-                <span>
-                    Nordeste
-                </span>
-
-                <span>
-                    Sudeste
-                </span>
-
-                <span>
-                    Centro-Oeste
-                </span>
+            <div className="flex flex-row items-center justify-center">
+                <div className="w-200 h-200">
+                    <Brazil />
+                </div>
             </div>
 
             <button role="button" onClick={onExitButtonClick}>
@@ -53,3 +39,4 @@ export default function GameStarted ({
         </div>
     );
 }
+
