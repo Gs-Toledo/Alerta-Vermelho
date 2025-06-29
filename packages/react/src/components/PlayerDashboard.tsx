@@ -1,3 +1,4 @@
+import { PLAYER_COLORS } from "@/config/ui-config";
 import { useGame } from "../context/GameContext";
 import ActionsPanel from "./ActionPanel";
 
@@ -12,6 +13,8 @@ export default function PlayerDashboard() {
 
     if (!currentPlayer) return <div>Aguardando jogador...</div>;
 
+    const playerColor = PLAYER_COLORS[currentPlayerIndex];
+
     // Função para pegar o nome completo do estado a partir do ID
     const getLocationName = (id: string) => {
         return (
@@ -20,8 +23,15 @@ export default function PlayerDashboard() {
     };
 
     return (
-        <div className="bg-gray-900 p-3 rounded-lg shadow-inner">
-            <h3 className="text-lg font-bold border-b border-gray-700 pb-2 mb-2">
+        <div
+            className={`bg-gray-900 p-3 rounded-lg shadow-inner border-2 ${playerColor.border}`}
+        >
+            <h3
+                className={`text-lg font-bold border-b pb-2 mb-2 ${playerColor.border}`}
+            >
+                <span
+                    className={`inline-block w-4 h-4 rounded-full mr-2 ${playerColor.bg}`}
+                ></span>
                 Turno de: {currentPlayer.nome}
             </h3>
             <div className="space-y-2 text-sm">

@@ -89,7 +89,7 @@ export default function Game() {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gray-800 text-white">
                 <span role="heading" className="font-bold text-5xl mb-8">
-                    Alerta Vermelho
+                    Alerta <span className="text-red-500">Vermelho</span>
                 </span>
 
                 <div className="mb-8 w-1/4">

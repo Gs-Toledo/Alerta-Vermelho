@@ -5,6 +5,7 @@ import {
     type Jogador,
     type EstadoQueimada,
 } from "../../../core/src";
+import { PLAYER_COLORS } from "@/config/ui-config";
 
 interface LocationMarkerProps {
     location: Localizacao;
@@ -18,6 +19,10 @@ const fireColors = [
     "bg-orange-600",
     "bg-red-700",
 ];
+
+const getPlayerIndex = (player: Jogador): number => {
+    return parseInt(player.id.split("-")[1], 10) - 1;
+};
 
 export default function LocationMarker({
     location,
@@ -105,17 +110,17 @@ export default function LocationMarker({
 
             {/* Tokens dos Jogadores */}
             <div className="flex space-x-1">
-                {players.map((player) => (
-                    <div
-                        key={player.id}
-                        className={`w-4 h-4 rounded-full border-2 ${
-                            player.id.includes("1")
-                                ? "bg-blue-500 border-blue-200"
-                                : "bg-green-500 border-green-200"
-                        }`}
-                        title={player.nome}
-                    ></div>
-                ))}
+                {players.map((player) => {
+                    const playerIndex = getPlayerIndex(player);
+                    const playerColor = PLAYER_COLORS[playerIndex];
+                    return (
+                        <div
+                            key={player.id}
+                            className={`w-4 h-4 rounded-full border-2 border-white ${playerColor.bg}`}
+                            title={player.nome}
+                        ></div>
+                    );
+                })}
             </div>
         </div>
     );
