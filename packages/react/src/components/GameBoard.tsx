@@ -1,6 +1,7 @@
 import { useGame } from "../context/GameContext";
 import LocationMarker from "./LocationMarker";
 import { RegiaoBrasil } from "../../../core/src";
+import { FaShieldAlt } from "react-icons/fa";
 
 const regionOrder: RegiaoBrasil[] = [
     RegiaoBrasil.NORTE,
@@ -26,37 +27,57 @@ export default function GameBoard() {
                 Mapa de Operações
             </h2>
             <div className="flex-grow grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {regionOrder.map((region) => (
-                    <div
-                        key={region}
-                        className="bg-black bg-opacity-20 p-2 rounded-lg flex flex-col items-center"
-                    >
-                        <h3 className="font-bold text-lg mb-4 text-yellow-300">
-                            {region}
-                        </h3>
-                        <div className="space-y-3">
-                            {(locationsByRegion[region] || []).map((loc) => {
-                                const fireState =
-                                    gameState.estadosQueimadas.find(
-                                        (eq) => eq.id === loc.id
-                                    );
-                                const playersOnLocation =
-                                    gameState.jogadores.filter(
-                                        (p) => p.localizacaoAtual === loc.id
-                                    );
+                {regionOrder.map((region) => {
+                    const isProtected =
+                        gameState.moratoriasDecretadas.includes(region);
 
-                                return (
-                                    <LocationMarker
-                                        key={loc.id}
-                                        location={loc}
-                                        fireState={fireState}
-                                        players={playersOnLocation}
+                    return (
+                        <div
+                            key={region}
+                            className={`bg-black p-2 rounded-lg flex flex-col items-center transition-colors duration-500 ${
+                                isProtected
+                                    ? "bg-green-900 bg-opacity-30"
+                                    : "bg-opacity-20"
+                            }`}
+                        >
+                            <h3 className="font-bold text-lg mb-4 text-yellow-300 flex items-center">
+                                {region}
+                                {/* O Ícone de escudo só aparece se isProtected for verdadeiro */}
+                                {isProtected && (
+                                    <FaShieldAlt
+                                        className="ml-2 text-green-400"
+                                        title="Moratória Decretada"
                                     />
-                                );
-                            })}
+                                )}
+                            </h3>
+                            <div className="space-y-3">
+                                {(locationsByRegion[region] || []).map(
+                                    (loc) => {
+                                        const fireState =
+                                            gameState.estadosQueimadas.find(
+                                                (eq) => eq.id === loc.id
+                                            );
+                                        const playersOnLocation =
+                                            gameState.jogadores.filter(
+                                                (p) =>
+                                                    p.localizacaoAtual ===
+                                                    loc.id
+                                            );
+
+                                        return (
+                                            <LocationMarker
+                                                key={loc.id}
+                                                location={loc}
+                                                fireState={fireState}
+                                                players={playersOnLocation}
+                                            />
+                                        );
+                                    }
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ import {
     type EstadoQueimada,
 } from "../../../core/src";
 import { PLAYER_COLORS } from "@/config/ui-config";
+import { FaBuilding } from "react-icons/fa";
 
 interface LocationMarkerProps {
     location: Localizacao;
@@ -39,6 +40,10 @@ export default function LocationMarker({
 
     let isTarget = false;
     let isAdjacent = false;
+
+    const hasPreventionCenter = gameState?.centrosDePrevencao.includes(
+        location.id
+    );
 
     if (actionState.type === "SELECTING_MOVE_TARGET") {
         isAdjacent = actionState.validDestinations.includes(location.id);
@@ -140,7 +145,16 @@ export default function LocationMarker({
 
             {/* Informações do Local */}
             <div className="flex-grow">
-                <div className="font-bold text-white">{location.estado}</div>
+                <div className="font-bold text-white flex items-center">
+                    {location.estado}
+                    {/* Ícone indicando o Centro de Prevenção */}
+                    {hasPreventionCenter && (
+                        <FaBuilding
+                            className="ml-2 text-cyan-400"
+                            title="Centro de Prevenção"
+                        />
+                    )}
+                </div>
                 <div className="text-xs text-green-300">
                     Proteção: {protectionLevel}%
                 </div>

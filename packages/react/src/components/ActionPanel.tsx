@@ -12,6 +12,7 @@ const HABILIDADE_MAP = {
 
 export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
     const {
+        gameState,
         performAction,
         nextTurn,
         enterMoveMode,
@@ -70,6 +71,54 @@ export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
     const handleEndTurnClick = () => {
         resetActionState();
         nextTurn();
+    };
+
+    const podeConstruirCentro =
+        currentPlayer.mao.includes(currentPlayer.localizacaoAtual) &&
+        !gameState?.centrosDePrevencao.includes(currentPlayer.localizacaoAtual);
+
+    const localAtual = gameState?.localizacoes.find(
+        (l) => l.id === currentPlayer.localizacaoAtual
+    );
+
+    const estaEmCentro = gameState?.centrosDePrevencao.includes(
+        currentPlayer.localizacaoAtual
+    );
+
+    const regiaoNaoProtegida =
+        localAtual &&
+        !gameState?.moratoriasDecretadas.includes(localAtual.regiao);
+
+    const temCartasSuficientesParaMoratoria =
+        localAtual &&
+        currentPlayer.mao.filter(
+            (c) =>
+                gameState?.localizacoes.find((l) => l.id === c)?.regiao ===
+                localAtual.regiao
+        ).length >= 4;
+
+    const podeDecretarMoratoria =
+        estaEmCentro && regiaoNaoProtegida && temCartasSuficientesParaMoratoria;
+
+    const handleConstruirCentro = () => {
+        performAction(currentPlayer.id, TipoAcao.CONSTRUIR_CENTRO);
+    };
+
+    const handleDecretarMoratoria = () => {
+        const localAtual = gameState!.localizacoes.find(
+            (l) => l.id === currentPlayer.localizacaoAtual
+        );
+        const cartasDaRegiao = currentPlayer.mao.filter(
+            (c) =>
+                gameState?.localizacoes.find((l) => l.id === c)?.regiao ===
+                localAtual?.regiao
+        );
+        const cartasParaUsar = cartasDaRegiao.slice(0, 4);
+        performAction(
+            currentPlayer.id,
+            TipoAcao.DECRETAR_MORATORIA,
+            cartasParaUsar
+        );
     };
 
     const hasActions = currentPlayer.acoesRestantes > 0;
@@ -140,6 +189,20 @@ export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
                     {actionState.type === "SELECTING_GOVERNOR_TARGET"
                         ? `Cancelar Habilidade`
                         : habilidadeNome}
+                </button>
+                <button
+                    onClick={handleConstruirCentro}
+                    disabled={!hasActions || isBusy || !podeConstruirCentro}
+                    className="w-full mt-2 p-2 bg-cyan-600 rounded disabled:bg-gray-500 hover:bg-cyan-700"
+                >
+                    Construir Centro
+                </button>
+                <button
+                    onClick={handleDecretarMoratoria}
+                    disabled={!hasActions || isBusy || !podeDecretarMoratoria}
+                    className="w-full mt-2 p-2 bg-green-600 rounded disabled:bg-gray-500 hover:bg-green-700"
+                >
+                    Decretar Moratória
                 </button>
             </div>
             <button

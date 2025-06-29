@@ -48,6 +48,8 @@ export default class Game {
       turnoAtual: 0,
       jogoAcabou: false,
       vitoria: null,
+      centrosDePrevencao: [],
+      moratoriasDecretadas: [],
       mensagensLog: this.logger.getLogs(), // Sincroniza com o Logger
     };
   }
@@ -203,6 +205,14 @@ export default class Game {
         }
         acaoBemSucedida = this._realizarPlanejamento(jogador);
         break;
+      case TipoAcao.CONSTRUIR_CENTRO:
+        acaoBemSucedida = this._construirCentro(jogador);
+        break;
+
+      case TipoAcao.DECRETAR_MORATORIA:
+        const cartasParaMoratoria = args[0] as string[];
+        acaoBemSucedida = this._decretarMoratoria(jogador, cartasParaMoratoria);
+        break;
       default:
         this.logger.addLog(
           `Ação desconhecida: ${acao}`,
@@ -256,6 +266,104 @@ export default class Game {
         this.estado.turnoAtual
       );
     }
+  }
+
+  private _construirCentro(jogador: Jogador): boolean {
+    const localId = jogador.localizacaoAtual;
+
+    // Verifica se já não existe um centro no local
+    if (this.estado.centrosDePrevencao.includes(localId)) {
+      this.logger.addLog(
+        `Já existe um Centro de Prevenção em ${localId}.`,
+        this.estado.turnoAtual
+      );
+      return false;
+    }
+
+    // Verifica se o jogador tem a carta do local
+    const cardIndex = jogador.mao.indexOf(localId);
+    if (cardIndex === -1) {
+      this.logger.addLog(
+        `${jogador.nome} não possui a carta de ${localId} para construir um Centro.`,
+        this.estado.turnoAtual
+      );
+      return false;
+    }
+
+    // Sucesso: gasta a carta e constrói o centro
+    jogador.mao.splice(cardIndex, 1);
+    this.estado.descarteJogador.push(localId);
+    this.estado.centrosDePrevencao.push(localId);
+    this.logger.addLog(
+      `${jogador.nome} construiu um Centro de Prevenção em ${localId}!`,
+      this.estado.turnoAtual
+    );
+    return true;
+  }
+
+  private _decretarMoratoria(jogador: Jogador, cartasIds: string[]): boolean {
+    const localAtual = this.mapManager.findLocationById(
+      jogador.localizacaoAtual
+    );
+    if (!localAtual) return false;
+
+    // 1. Precisa estar em um Centro de Prevenção
+    if (!this.estado.centrosDePrevencao.includes(localAtual.id)) {
+      this.logger.addLog(
+        `É preciso estar em um Centro de Prevenção para decretar uma moratória.`,
+        this.estado.turnoAtual
+      );
+      return false;
+    }
+
+    // 2. A região não pode já estar protegida
+    if (this.estado.moratoriasDecretadas.includes(localAtual.regiao)) {
+      this.logger.addLog(
+        `A região ${localAtual.regiao} já está protegida por uma moratória.`,
+        this.estado.turnoAtual
+      );
+      return false;
+    }
+
+    // 3. Precisa de 4 cartas
+    const NUM_CARTAS_PARA_MORATORIA = 4;
+    if (cartasIds.length < NUM_CARTAS_PARA_MORATORIA) {
+      this.logger.addLog(
+        `São necessárias ${NUM_CARTAS_PARA_MORATORIA} cartas para a moratória.`,
+        this.estado.turnoAtual
+      );
+      return false;
+    }
+
+    // 4. Todas as cartas devem ser da mesma região do Centro
+    const todasDaMesmaRegiao = cartasIds.every((cardId) => {
+      const cardLocation = this.mapManager.findLocationById(cardId);
+      return cardLocation && cardLocation.regiao === localAtual.regiao;
+    });
+
+    if (!todasDaMesmaRegiao) {
+      this.logger.addLog(
+        `Todas as cartas devem pertencer à região ${localAtual.regiao}.`,
+        this.estado.turnoAtual
+      );
+      return false;
+    }
+
+    // Sucesso: gasta as cartas, decreta a moratória e melhora a flora
+    cartasIds.forEach((cardId) => {
+      const index = jogador.mao.indexOf(cardId);
+      if (index > -1) jogador.mao.splice(index, 1);
+    });
+    this.estado.descarteJogador.push(...cartasIds);
+    this.estado.moratoriasDecretadas.push(localAtual.regiao);
+    this.estado.trilhaFlora = Math.min(100, this.estado.trilhaFlora + 20); // Bônus de 20 para a flora!
+
+    this.logger.addLog(
+      `MORATÓRIA DECRETADA NA REGIÃO ${localAtual.regiao}! Novas queimadas estão proibidas aqui!`,
+      this.estado.turnoAtual
+    );
+    this._verificarCondicoesVitoria();
+    return true;
   }
 
   private _distribuirCartasIniciaisJogadores(): void {
@@ -563,6 +671,20 @@ export default class Game {
 
     const estadoId = this.estado.baralhoQueimada.shift();
     if (estadoId) {
+      const localizacao = this.mapManager.findLocationById(estadoId);
+
+      if (
+        localizacao &&
+        this.estado.moratoriasDecretadas.includes(localizacao.regiao)
+      ) {
+        this.logger.addLog(
+          `Queimada em ${localizacao.estado} foi prevenida pela moratória regional!`,
+          this.estado.turnoAtual
+        );
+        this.estado.descarteQueimada.push(estadoId); // Descarta a carta sem efeito
+        return;
+      }
+
       this.estado.descarteQueimada.push(estadoId);
       const estadoQueimada = this.estado.estadosQueimadas.find(
         (eq) => eq.id === estadoId
@@ -673,6 +795,16 @@ export default class Game {
 
   private _verificarCondicoesVitoria(): void {
     if (this.estado.jogoAcabou) return; // Já finalizado
+
+    if (this.estado.moratoriasDecretadas.length === 5) {
+      // caso 5 regiões no Brasil com moratorias criadas
+      this._finalizarJogo(true);
+      this.logger.addLog(
+        "Parabéns! Vocês decretaram moratórias em todas as regiões e salvaram o Brasil! VITÓRIA!",
+        this.estado.turnoAtual
+      );
+      return;
+    }
 
     const todasQueimadasControladas = this.estado.estadosQueimadas.every(
       (eq) => eq.nivelQueimada === 0
