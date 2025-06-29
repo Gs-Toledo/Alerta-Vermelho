@@ -114,6 +114,71 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                             </li>
                         </ul>
                     </section>
+
+                    <section>
+                        <h3 className="font-bold text-lg text-yellow-300">
+                            Cargos e Habilidades Especiais
+                        </h3>
+                        <div className="space-y-3 mt-2 pl-2">
+                            <article>
+                                <h4 className="font-semibold text-blue-300">
+                                    Ministro do Meio Ambiente
+                                </h4>
+                                <p className="text-sm text-gray-400">
+                                    Focado em prevenção e políticas de longo
+                                    prazo.
+                                </p>
+                                <p className="mt-1">
+                                    <strong>
+                                        Habilidade (Ação de Planejamento):
+                                    </strong>{" "}
+                                    Gasta 1 ação para aumentar a{" "}
+                                    <span className="font-semibold">
+                                        Proteção Ambiental
+                                    </span>{" "}
+                                    do seu local atual em +30%.
+                                </p>
+                            </article>
+                            <article>
+                                <h4 className="font-semibold text-green-300">
+                                    Governador
+                                </h4>
+                                <p className="text-sm text-gray-400">
+                                    Focado em ação rápida e controle regional.
+                                </p>
+                                <p className="mt-1">
+                                    <strong>
+                                        Habilidade (Ação de Planejamento):
+                                    </strong>{" "}
+                                    Gasta 1 ação para combater uma queimada
+                                    (reduzir 1 nível) em{" "}
+                                    <span className="font-semibold">
+                                        qualquer estado da sua região atual
+                                    </span>
+                                    , sem precisar se mover.
+                                </p>
+                            </article>
+                            <article>
+                                <h4 className="font-semibold text-purple-300">
+                                    Parlamentar
+                                </h4>
+                                <p className="text-sm text-gray-400">
+                                    Focado em articulação política e obtenção de
+                                    recursos.
+                                </p>
+                                <p className="mt-1">
+                                    <strong>
+                                        Habilidade (Ação de Planejamento):
+                                    </strong>{" "}
+                                    Gasta 1 ação para{" "}
+                                    <span className="font-semibold">
+                                        comprar 1 carta extra
+                                    </span>{" "}
+                                    do Baralho de Jogador.
+                                </p>
+                            </article>
+                        </div>
+                    </section>
                 </div>
 
                 <div className="text-right mt-6">
