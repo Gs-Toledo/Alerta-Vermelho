@@ -6,14 +6,17 @@ import {
     useCallback,
     useMemo,
 } from "react";
-import { Game } from "../../../core/src";
+import { Game, RegiaoBrasil, type Jogador } from "../../../core/src";
 import { type EstadoJogo, TipoAcao, type MensagemLog } from "../../../core/src";
 
 type ActionState =
     | { type: "IDLE" }
     | { type: "SELECTING_MOVE_TARGET"; validDestinations: string[] }
     | { type: "SELECTING_COOP_PLAYER"; validPlayers: string[] }
-    | { type: "SELECTING_COOP_CARD"; targetPlayerId: string };
+    | { type: "SELECTING_COOP_CARD"; targetPlayerId: string }
+    | { type: "SELECTING_GOVERNOR_TARGET"; region: RegiaoBrasil }
+    | { type: "COOPERATING_SELECT_PLAYER"; validPlayers: Jogador[] }
+    | { type: "COOPERATING_SELECT_CARD"; targetPlayer: Jogador };
 
 interface GameContextType {
     game: Game | null;
@@ -28,6 +31,8 @@ interface GameContextType {
     ) => boolean;
     nextTurn: () => void;
     enterMoveMode: (originId: string) => void;
+    enterGovernorAbilityMode: (region: RegiaoBrasil) => void;
+    enterCooperateMode: () => void;
     resetActionState: () => void;
     resetGame: () => void;
 }
@@ -49,6 +54,33 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     const [actionState, setActionState] = useState<ActionState>({
         type: "IDLE",
     });
+
+    const enterGovernorAbilityMode = useCallback((region: RegiaoBrasil) => {
+        setActionState({ type: "SELECTING_GOVERNOR_TARGET", region });
+    }, []);
+
+    const enterCooperateMode = useCallback(() => {
+        if (!gameState) return;
+        const currentPlayerIndex =
+            (gameState.turnoAtual - 1) % gameState.jogadores.length;
+        const currentPlayer = gameState.jogadores[currentPlayerIndex];
+
+        const playersAtSameLocation = gameState.jogadores.filter(
+            (p) =>
+                p.id !== currentPlayer.id &&
+                p.localizacaoAtual === currentPlayer.localizacaoAtual
+        );
+
+        if (playersAtSameLocation.length > 0) {
+            setActionState({
+                type: "COOPERATING_SELECT_PLAYER",
+                validPlayers: playersAtSameLocation,
+            });
+        } else {
+            alert("Nenhum outro jogador na sua localização para cooperar.");
+            resetActionState();
+        }
+    }, [gameState]);
 
     const updateState = useCallback((gameInstance: Game) => {
         setGameState(JSON.parse(JSON.stringify(gameInstance.getEstadoAtual())));
@@ -119,6 +151,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         enterMoveMode,
         resetActionState,
         resetGame,
+        enterGovernorAbilityMode,
+        enterCooperateMode,
     };
 
     return (

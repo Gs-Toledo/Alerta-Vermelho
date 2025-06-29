@@ -43,6 +43,11 @@ export default function LocationMarker({
         if (currentPlayerLocation !== location.id) {
             isTarget = isAdjacent;
         }
+    } else if (actionState.type === "SELECTING_GOVERNOR_TARGET") {
+        // habilidade do Governador
+        const temQueimada = (fireState?.nivelQueimada ?? 0) > 0;
+        const estaNaRegiaoCerta = location.regiao === actionState.region;
+        isTarget = temQueimada && estaNaRegiaoCerta;
     }
 
     const handleClick = () => {
@@ -54,13 +59,16 @@ export default function LocationMarker({
             return;
         }
 
-        if (actionState.type === "SELECTING_MOVE_TARGET" && gameState) {
-            console.log(`Tentando mover para ${location.estado}`);
-            const currentPlayerIndex =
-                (gameState.turnoAtual - 1) % gameState.jogadores.length;
-            const currentPlayer = gameState.jogadores[currentPlayerIndex];
+        const currentPlayerIndex =
+            (gameState!.turnoAtual - 1) % gameState!.jogadores.length;
+        const currentPlayer = gameState!.jogadores[currentPlayerIndex];
+
+        if (actionState.type === "SELECTING_MOVE_TARGET") {
             performAction(currentPlayer.id, TipoAcao.MOVER, location.id);
+        } else if (actionState.type === "SELECTING_GOVERNOR_TARGET") {
+            performAction(currentPlayer.id, TipoAcao.PLANEJAMENTO, location.id);
         }
+        console.log(`Tentando mover para ${location.estado}`);
     };
 
     const fireLevel = fireState?.nivelQueimada ?? 0;

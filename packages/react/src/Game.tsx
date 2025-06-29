@@ -5,10 +5,22 @@ import PlayerDashboard from "./components/PlayerDashboard";
 import LogPanel from "./components/LogPanel";
 import GameStatus from "./components/GameStatus";
 import HelpModal from "./components/HelpModal";
+import { CargoJogador } from "../../core/src";
+import CooperationModal from "./components/CooperationModal";
+
+const ROLES_ASSIGNMENT = [
+    CargoJogador.MINISTRO_MEIO_AMBIENTE,
+    CargoJogador.GOVERNADOR,
+    CargoJogador.PARLAMENTAR,
+];
 
 export default function Game() {
     const { gameState, initializeGame, resetGame } = useGame();
-    const [playerNames, setPlayerNames] = useState(["Jogador 1", "Jogador 2"]);
+    const [playerNames, setPlayerNames] = useState([
+        "Jogador 1",
+        "Jogador 2",
+        "Jogador 3",
+    ]);
     const [isHelpModalOpen, setHelpModalOpen] = useState(false); // <--  modal -->
 
     const handleStartGame = () => {
@@ -17,6 +29,12 @@ export default function Game() {
         } else {
             alert("Por favor, insira o nome de todos os jogadores.");
         }
+    };
+
+    const handlePlayerNameChange = (index: number, name: string) => {
+        const newPlayerNames = [...playerNames];
+        newPlayerNames[index] = name;
+        setPlayerNames(newPlayerNames);
     };
 
     const renderGameContent = () => {
@@ -73,28 +91,31 @@ export default function Game() {
                 <span role="heading" className="font-bold text-5xl mb-8">
                     Alerta Vermelho
                 </span>
-                <div className="mb-4">
-                    <label className="block mb-2">Jogador 1:</label>
-                    <input
-                        type="text"
-                        value={playerNames[0]}
-                        onChange={(e) =>
-                            setPlayerNames([e.target.value, playerNames[1]])
-                        }
-                        className="p-2 rounded bg-gray-700 text-white"
-                    />
+
+                <div className="mb-8 w-1/4">
+                    {ROLES_ASSIGNMENT.map((role, index) => (
+                        <div key={role} className="mb-4">
+                            <label className="block mb-1 text-sm text-gray-400">
+                                Jogador {index + 1} -{" "}
+                                <span className="font-bold text-yellow-300">
+                                    {role}
+                                </span>
+                            </label>
+                            <input
+                                type="text"
+                                value={playerNames[index]}
+                                onChange={(e) =>
+                                    handlePlayerNameChange(
+                                        index,
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full p-2 rounded bg-gray-700 text-white"
+                            />
+                        </div>
+                    ))}
                 </div>
-                <div className="mb-8">
-                    <label className="block mb-2">Jogador 2:</label>
-                    <input
-                        type="text"
-                        value={playerNames[1]}
-                        onChange={(e) =>
-                            setPlayerNames([playerNames[0], e.target.value])
-                        }
-                        className="p-2 rounded bg-gray-700 text-white"
-                    />
-                </div>
+
                 <div className="flex space-x-4">
                     <button
                         onClick={handleStartGame}
@@ -120,6 +141,7 @@ export default function Game() {
             {isHelpModalOpen && (
                 <HelpModal onClose={() => setHelpModalOpen(false)} />
             )}
+            <CooperationModal />
 
             {renderGameContent()}
         </>

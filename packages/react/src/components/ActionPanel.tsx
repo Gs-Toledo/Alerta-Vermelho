@@ -1,8 +1,14 @@
 import { useGame } from "../context/GameContext";
-import { type Jogador, TipoAcao } from "../../../core/src";
+import { CargoJogador, type Jogador, TipoAcao } from "../../../core/src";
 interface ActionsPanelProps {
     currentPlayer: Jogador;
 }
+
+const HABILIDADE_MAP = {
+    [CargoJogador.MINISTRO_MEIO_AMBIENTE]: "Fortalecer Proteção",
+    [CargoJogador.GOVERNADOR]: "Mobilizar Forças",
+    [CargoJogador.PARLAMENTAR]: "Articular Apoio",
+};
 
 export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
     const {
@@ -11,7 +17,37 @@ export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
         enterMoveMode,
         actionState,
         resetActionState,
+        enterGovernorAbilityMode,
+        enterCooperateMode,
     } = useGame();
+
+    const habilidadeNome =
+        HABILIDADE_MAP[currentPlayer.cargo] || "Planejamento";
+
+    const handlePlanejamentoClick = () => {
+        // Ação dependendo do cargo
+        switch (currentPlayer.cargo) {
+            case CargoJogador.MINISTRO_MEIO_AMBIENTE:
+            case CargoJogador.PARLAMENTAR:
+                // Ações de um passo só
+                performAction(currentPlayer.id, TipoAcao.PLANEJAMENTO);
+                break;
+            case CargoJogador.GOVERNADOR:
+                // Ação de dois passos
+                if (actionState.type === "SELECTING_GOVERNOR_TARGET") {
+                    resetActionState();
+                } else {
+                    // eslint-disable-next-line react-hooks/rules-of-hooks
+                    const jogadorLocal = useGame().gameState?.localizacoes.find(
+                        (l) => l.id === currentPlayer.localizacaoAtual
+                    );
+                    if (jogadorLocal) {
+                        enterGovernorAbilityMode(jogadorLocal.regiao);
+                    }
+                }
+                break;
+        }
+    };
 
     const handleMoveClick = () => {
         // Se já estivermos no modo de movimento, cancelamos. Senão, entramos no modo.
@@ -20,6 +56,10 @@ export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
         } else {
             enterMoveMode(currentPlayer.localizacaoAtual);
         }
+    };
+
+    const handleCooperateClick = () => {
+        enterCooperateMode();
     };
 
     const handleFightFireClick = () => {
@@ -35,6 +75,13 @@ export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
     const hasActions = currentPlayer.acoesRestantes > 0;
     // Desativa os botões se o jogador não tiver ações OU se estiver no meio de outra ação
     const isBusy = actionState.type !== "IDLE";
+
+    const canCooperate =
+        useGame().gameState?.jogadores.some(
+            (p) =>
+                p.id !== currentPlayer.id &&
+                p.localizacaoAtual === currentPlayer.localizacaoAtual
+        ) ?? false;
 
     return (
         <div className="mt-4 border-t border-gray-700 pt-3">
@@ -75,16 +122,24 @@ export default function ActionsPanel({ currentPlayer }: ActionsPanelProps) {
                     Combater Queimada
                 </button>
                 <button
-                    disabled={!hasActions || isBusy}
-                    className="p-2 bg-yellow-600 rounded disabled:bg-gray-500 hover:bg-yellow-700"
+                    onClick={handleCooperateClick}
+                    disabled={!hasActions || isBusy || !canCooperate}
+                    className="p-2 bg-yellow-600 rounded disabled:bg-gray-500 hover:bg-yellow-700 w-full mt-2"
                 >
                     Cooperar
                 </button>
                 <button
-                    disabled={!hasActions || isBusy}
-                    className="p-2 bg-purple-600 rounded disabled:bg-gray-500 hover:bg-purple-700"
+                    onClick={handlePlanejamentoClick}
+                    disabled={
+                        !hasActions ||
+                        (isBusy &&
+                            actionState.type !== "SELECTING_GOVERNOR_TARGET")
+                    }
+                    className="p-2 bg-purple-600 rounded disabled:bg-gray-500 hover:bg-purple-700 w-full mt-2"
                 >
-                    Planejamento
+                    {actionState.type === "SELECTING_GOVERNOR_TARGET"
+                        ? `Cancelar Habilidade`
+                        : habilidadeNome}
                 </button>
             </div>
             <button
