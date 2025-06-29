@@ -14,16 +14,17 @@ export default function LogPanel() {
     }, [logs]);
 
     return (
-        <div className="bg-gray-900 p-3 rounded-lg shadow-inner flex-grow flex flex-col">
-            <h3 className="text-lg font-bold border-b border-gray-700 pb-2 mb-2">
+        <div className="bg-gray-900 p-3 rounded-lg shadow-inner flex-grow flex flex-col min-h-0">
+            <h3 className="text-lg font-bold border-b border-gray-700 pb-2 mb-2 flex-shrink-0">
                 Log de Eventos
             </h3>
+
             <div
                 ref={logContainerRef}
-                className="flex-grow overflow-y-auto text-sm space-y-1 pr-2"
+                className="overflow-y-auto text-sm space-y-1 pr-2"
             >
                 {logs.map((log, index) => (
-                    <p key={index} className="text-gray-300">
+                    <p key={index} className="text-gray-300 break-words">
                         <span className="font-semibold text-gray-500 mr-2">
                             [T{log.turno}]
                         </span>
