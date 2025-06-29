@@ -33,6 +33,8 @@ interface GameContextType {
     enterMoveMode: (originId: string) => void;
     enterGovernorAbilityMode: (region: RegiaoBrasil) => void;
     enterCooperateMode: () => void;
+    inspectedLocationId: string | null;
+    setInspectedLocationId: (id: string | null) => void;
     resetActionState: () => void;
     resetGame: () => void;
 }
@@ -54,6 +56,10 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     const [actionState, setActionState] = useState<ActionState>({
         type: "IDLE",
     });
+
+    const [inspectedLocationId, setInspectedLocationId] = useState<
+        string | null
+    >(null);
 
     const enterGovernorAbilityMode = useCallback((region: RegiaoBrasil) => {
         setActionState({ type: "SELECTING_GOVERNOR_TARGET", region });
@@ -153,6 +159,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         resetGame,
         enterGovernorAbilityMode,
         enterCooperateMode,
+        inspectedLocationId,
+        setInspectedLocationId,
     };
 
     return (

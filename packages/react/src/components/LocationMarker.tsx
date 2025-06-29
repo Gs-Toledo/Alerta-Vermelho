@@ -29,7 +29,13 @@ export default function LocationMarker({
     fireState,
     players,
 }: LocationMarkerProps) {
-    const { gameState, actionState, performAction } = useGame();
+    const {
+        gameState,
+        actionState,
+        performAction,
+        inspectedLocationId,
+        setInspectedLocationId,
+    } = useGame();
 
     let isTarget = false;
     let isAdjacent = false;
@@ -78,19 +84,51 @@ export default function LocationMarker({
 
     const fireLevel = fireState?.nivelQueimada ?? 0;
     const protectionLevel = fireState?.protecaoAmbiental ?? 0;
+    let isActionTarget = false;
+    if (actionState.type === "SELECTING_MOVE_TARGET") {
+        isActionTarget = actionState.validDestinations.includes(location.id);
+    } else if (actionState.type === "SELECTING_GOVERNOR_TARGET") {
+        const temQueimada = (fireState?.nivelQueimada ?? 0) > 0;
+        const estaNaRegiaoCerta = location.regiao === actionState.region;
+        isActionTarget = temQueimada && estaNaRegiaoCerta;
+    }
 
+    // 2. Lógica de inspeção (só se aplica se não houver uma ação em andamento)
+    const isBeingInspected = location.id === inspectedLocationId;
+    let isAdjacentToInspected = false;
+    if (inspectedLocationId && gameState) {
+        const inspectedLocationData = gameState.localizacoes.find(
+            (l) => l.id === inspectedLocationId
+        );
+        if (inspectedLocationData?.adjacentes.includes(location.id)) {
+            isAdjacentToInspected = true;
+        }
+    }
+
+    // A ordem de prioridade dos estilos é: Alvo da Ação > Inspecionado > Adjacente
     const containerClasses = [
         "p-2 rounded-md shadow-md flex items-center space-x-3 w-48",
         "transition-all duration-200",
-        fireLevel > 0 ? "bg-gray-800" : "bg-gray-700",
-        isTarget
-            ? "ring-2 ring-blue-400 cursor-pointer scale-105 animate-pulse"
+        isActionTarget
+            ? "ring-2 ring-blue-400 cursor-pointer scale-105 animate-pulse" // Alvo de Ação
+            : isBeingInspected
+            ? "ring-2 ring-white scale-105" // Local inspecionado
+            : isAdjacentToInspected
+            ? "ring-2 ring-green-400" // Adjacente ao inspecionado
             : "ring-1 ring-gray-600",
-        !isTarget && actionState.type !== "IDLE" ? "opacity-40" : "opacity-100",
+        // Mantém a opacidade para ações
+        !isActionTarget && actionState.type !== "IDLE"
+            ? "opacity-40"
+            : "opacity-100",
     ].join(" ");
 
     return (
-        <div className={containerClasses} onClick={handleClick}>
+        <div
+            className={containerClasses}
+            onClick={handleClick}
+            onMouseEnter={() => setInspectedLocationId(location.id)}
+            onMouseLeave={() => setInspectedLocationId(null)}
+        >
             {/* Indicador de Queimada */}
             <div
                 className={`w-8 h-8 rounded-full border-2 border-white flex-shrink-0 flex items-center justify-center ${fireColors[fireLevel]}`}
