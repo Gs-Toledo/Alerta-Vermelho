@@ -1,14 +1,13 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Game from "./Game.tsx";
+import { GameProvider } from "./context/GameContext.tsx";
+import "./index.css";
 
-import './index.css';
-
-import Game from './Game.tsx';
-
-const root = document.getElementById('root')!;
-
-createRoot(root).render(
-    <StrictMode>
-        <Game />
-    </StrictMode>
+ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+        <GameProvider>
+            <Game />
+        </GameProvider>
+    </React.StrictMode>
 );
