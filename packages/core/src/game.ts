@@ -1,14 +1,9 @@
 import {
-  RegiaoBrasil,
   CargoJogador,
   TipoAcao,
-  TipoEvento,
-  Localizacao,
-  Jogador,
-  EstadoQueimada,
-  CartaEvento,
-  EstadoJogo,
-  MensagemLog,
+  type Jogador,
+  type EstadoJogo,
+  type MensagemLog,
 } from "./utils/types";
 import { GAME_CONSTANTS } from "./constants/game-config";
 import { Logger } from "./utils/Logger";
@@ -28,7 +23,7 @@ export default class Game {
     this.mapManager = new MapManager();
     this.cardManager = new CardManager();
     // EventManager precisa de acesso ao logger e cardManager
-    this.eventManager = new EventManager(this.logger, this.cardManager);
+    this.eventManager = new EventManager(this.logger);
     this.estado = this.getInitialState();
   }
 
