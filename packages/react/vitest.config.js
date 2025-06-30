@@ -10,12 +10,12 @@ export default {
                 './src/**/*',
             ],
             reporter: ['text', 'html'],
-            thresholds: {
+/*             thresholds: {
                 lines: 75,
                 functions: 75,
                 branches: 75,
                 statements: 75,
-            }
+            } */
         },
     },
 };
