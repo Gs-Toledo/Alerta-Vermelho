@@ -17,6 +17,8 @@ export enum TipoAcao {
   COMBATER_QUEIMADA = "Combater Queimada",
   COOPERAR = "Cooperar com outro jogador",
   PLANEJAMENTO = "Realizar ações de planejamento",
+  CONSTRUIR_CENTRO = "Construir Centro de Prevenção",
+  DECRETAR_MORATORIA = "Decretar Moratória Regional",
 }
 
 export enum TipoEvento {
@@ -82,4 +84,6 @@ export interface EstadoJogo {
   jogoAcabou: boolean;
   vitoria: boolean | null;
   mensagensLog: MensagemLog[];
+  centrosDePrevencao: string[];
+  moratoriasDecretadas: RegiaoBrasil[];
 }

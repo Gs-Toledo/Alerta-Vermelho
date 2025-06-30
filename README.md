@@ -2,6 +2,10 @@
 
 Este projeto é uma versão web inspirada no jogo de tabuleiro cooperativo "Pandemic", onde os jogadores devem trabalhar juntos para conter surtos de doenças ao redor do mundo.
 
+# Documentação do Projeto
+
+Link: https://docs.google.com/document/d/1kV7Ffu_ZsT7F2-W7jcUzcHIRBPctrg1qWUIa3_oF6Rw/edit?usp=sharing
+
 ## 🧩 Tecnologias utilizadas
 
 Vite + React

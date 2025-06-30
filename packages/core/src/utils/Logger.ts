@@ -1,4 +1,4 @@
-import { MensagemLog } from './types';
+import type { MensagemLog } from './types';
 import { GAME_CONSTANTS } from '../constants/game-config';
 
 /**

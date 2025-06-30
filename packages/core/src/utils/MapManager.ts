@@ -1,4 +1,4 @@
-import { Localizacao, RegiaoBrasil } from './types';
+import type { Localizacao } from './types';
 import { INITIAL_BRAZIL_LOCATIONS } from '../constants/initial-brazil-locations';
 
 /**

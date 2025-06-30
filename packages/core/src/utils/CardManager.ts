@@ -1,4 +1,4 @@
-import { CartaEvento } from './types';
+import type { CartaEvento } from './types';
 import { INITIAL_EVENT_CARDS } from '../constants/initial-event-cards';
 
 /**

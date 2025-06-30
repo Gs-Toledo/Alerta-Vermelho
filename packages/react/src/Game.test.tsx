@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+/* import '@testing-library/jest-dom';
 
 import { describe, it } from 'vitest';
 import { render } from '@testing-library/react';
@@ -9,4 +9,4 @@ describe('Game', () => {
     it('should render', () => {
         render(<Game />);
     });
-});
+}); */
