@@ -1,6 +1,9 @@
 {
   "exclude": ["node_modules/**/*", "coverage/**/*"],
   "compilerOptions": {
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "lib": ["ES2017", "DOM"],
+    "moduleResolution": "nodenext",
+    "module": "nodenext"
   }
 }
