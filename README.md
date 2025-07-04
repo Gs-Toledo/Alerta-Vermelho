@@ -6,6 +6,14 @@ Este projeto é uma versão web inspirada no jogo de tabuleiro cooperativo "Pand
 
 Link: https://docs.google.com/document/d/1kV7Ffu_ZsT7F2-W7jcUzcHIRBPctrg1qWUIa3_oF6Rw/edit?usp=sharing
 
+# Apresentação
+
+Slides 1: https://docs.google.com/presentation/d/1ld5AdxqelB7FemSsp27hDa5Ng2K7aVHWQBj8IOeD1FI/edit?slide=id.g275f3280b1d_0_480#slide=id.g275f3280b1d_0_480
+
+Slides 2: https://docs.google.com/presentation/d/1ecNcnMpl8qTqsiwtDHeng5Z8sh3zegYFHDjClVCGlhw/edit
+
+Slides 3: https://docs.google.com/presentation/d/1CfquulXrkKK1PajdnVBrG83m_B9qSZd2eB2y8hA805M/edit?slide=id.g275f3280b1d_0_480#slide=id.g275f3280b1d_0_480
+
 ## 🧩 Tecnologias utilizadas
 
 Vite + React
